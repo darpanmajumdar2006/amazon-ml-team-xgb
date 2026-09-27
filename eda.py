@@ -1,5 +1,7 @@
 from pathlib import Path
-for f in Path("dataset").rglob("*.tsv"):
+DATASET_DIR = Path("dataset")
+
+for f in DATASET_DIR.rglob("*.tsv"):
     size_mb = f.stat().st_size / (1024**2)
 
     with open(f, "rb") as file:
@@ -9,17 +11,17 @@ for f in Path("dataset").rglob("*.tsv"):
 
 import pandas as pd
 s1 = pd.read_csv(
-    r"C:\Users\DARPAN\Downloads\6ab10eb3b23ba_student_resource\student_resource\dataset\test\test_source1.tsv",
+    DATASET_DIR / "test" / "test_source1.tsv",
     sep="\t",
     nrows=100_000
 )
 s2 = pd.read_csv(
-    r"C:\Users\DARPAN\Downloads\6ab10eb3b23ba_student_resource\student_resource\dataset\test\test_source2.tsv",
+    DATASET_DIR / "test" / "test_source2.tsv",
     sep="\t",
     nrows=100_000
 )
 s3 = pd.read_csv(
-    r"C:\Users\DARPAN\Downloads\6ab10eb3b23ba_student_resource\student_resource\dataset\test\test_source3.tsv",
+    DATASET_DIR / "test" / "test_source3.tsv",
     sep="\t",
     nrows=100_000
 )
@@ -45,7 +47,7 @@ for name, df in [("S1", s1), ("S2", s2), ("S3", s3)]:
         ].sample(10, random_state=42)
     )
 gt = pd.read_csv(
-    r"C:\Users\DARPAN\Downloads\6ab10eb3b23ba_student_resource\student_resource\dataset\train\train_ground_truth.tsv",
+    DATASET_DIR / "train" / "train_ground_truth.tsv",
     sep="\t",
     
 )
@@ -108,7 +110,7 @@ def concat_if_present(frames, label):
 train_s1_matches = []
 
 for chunk in pd.read_csv(
-    r"C:\Users\DARPAN\Downloads\6ab10eb3b23ba_student_resource\student_resource\dataset\train\train_source1.tsv",
+    DATASET_DIR / "train" / "train_source1.tsv",
     sep="\t",
     chunksize=100_000
 ):
@@ -134,7 +136,7 @@ print("Example IDs:", list(matched_ids)[:10])
 train_s2_matches = []
 
 for chunk in pd.read_csv(
-    r"C:\Users\DARPAN\Downloads\6ab10eb3b23ba_student_resource\student_resource\dataset\train\train_source2.tsv",
+    DATASET_DIR / "train" / "train_source2.tsv",
     sep="\t",
     chunksize=100_000
 ):
@@ -149,7 +151,7 @@ train_s2_matches = concat_if_present(train_s2_matches, "train source 2")
 train_s3_matches = []
 
 for chunk in pd.read_csv(
-    r"C:\Users\DARPAN\Downloads\6ab10eb3b23ba_student_resource\student_resource\dataset\train\train_source3.tsv",
+    DATASET_DIR / "train" / "train_source3.tsv",
     sep="\t",
     chunksize=100_000
 ):
@@ -212,7 +214,7 @@ sample_s1_ids = set(
 train_s1_matches = []
 
 for chunk in pd.read_csv(
-    r"C:\Users\DARPAN\Downloads\6ab10eb3b23ba_student_resource\student_resource\dataset\train\train_source1.tsv",
+    DATASET_DIR / "train" / "train_source1.tsv",
     sep="\t",
     chunksize=100_000
 ):
@@ -267,7 +269,7 @@ print(
 train_s2_matches = []
 
 for chunk in pd.read_csv(
-    r"C:\Users\DARPAN\Downloads\6ab10eb3b23ba_student_resource\student_resource\dataset\train\train_source2.tsv",
+    DATASET_DIR / "train" / "train_source2.tsv",
     sep="\t",
     chunksize=100_000
 ):
@@ -295,7 +297,7 @@ else:
 train_s3_matches = []
 
 for chunk in pd.read_csv(
-    r"C:\Users\DARPAN\Downloads\6ab10eb3b23ba_student_resource\student_resource\dataset\train\train_source3.tsv",
+    DATASET_DIR / "train" / "train_source3.tsv",
     sep="\t",
     chunksize=100_000
 ):
@@ -1221,14 +1223,11 @@ summary_df.to_csv(
 
 import os
 
-input_folder = (
-    r"C:\Users\DARPAN\Downloads\6ab10eb3b23ba_student_resource"
-    r"\student_resource\dataset"
-)
+input_folder = DATASET_DIR
 
-output_folder = "normalized_data"
+output_folder = Path("normalized_data")
 
-os.makedirs(output_folder, exist_ok=True)
+output_folder.mkdir(parents=True, exist_ok=True)
 
 
 def normalize_full_file(input_path, output_path):
@@ -1316,16 +1315,9 @@ train_files = [
 
 for filename in train_files:
 
-    input_path = os.path.join(
-        input_folder,
-        "train",
-        filename
-    )
+    input_path = input_folder / "train" / filename
 
-    output_path = os.path.join(
-        output_folder,
-        filename
-    )
+    output_path = output_folder / filename
 
     print("\n" + "=" * 70)
     print("NORMALIZING:", filename)
@@ -1349,16 +1341,9 @@ test_files = [
 
 for filename in test_files:
 
-    input_path = os.path.join(
-        input_folder,
-        "test",
-        filename
-    )
+    input_path = input_folder / "test" / filename
 
-    output_path = os.path.join(
-        output_folder,
-        filename
-    )
+    output_path = output_folder / filename
 
     print("\n" + "=" * 70)
     print("NORMALIZING:", filename)
