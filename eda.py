@@ -1215,5 +1215,167 @@ summary_df.to_csv(
     "eda_normalization_summary.csv",
     index=False
 )
+# ============================================================
+# FULL DATASET NORMALIZATION
+# ============================================================
 
+import os
+
+input_folder = (
+    r"C:\Users\DARPAN\Downloads\6ab10eb3b23ba_student_resource"
+    r"\student_resource\dataset"
+)
+
+output_folder = "normalized_data"
+
+os.makedirs(output_folder, exist_ok=True)
+
+
+def normalize_full_file(input_path, output_path):
+    """
+    Reads a large TSV file in chunks, applies the same
+    normalization used during EDA, and writes the result
+    incrementally to disk.
+    """
+
+    first_chunk = True
+
+    for chunk_number, chunk in enumerate(
+        pd.read_csv(
+            input_path,
+            sep="\t",
+            chunksize=100_000
+        ),
+        start=1
+    ):
+
+        print(
+            f"Processing chunk {chunk_number}..."
+        )
+
+        # ----------------------------------------------------
+        # Business name normalization
+        # ----------------------------------------------------
+
+        if "business_name" in chunk.columns:
+
+            chunk["business_name_norm"] = (
+                chunk["business_name"]
+                .apply(normalize_basic)
+            )
+
+            chunk["business_name_core"] = (
+                chunk["business_name"]
+                .apply(normalize_name_core)
+            )
+
+        # ----------------------------------------------------
+        # Address normalization
+        # ----------------------------------------------------
+
+        if "business_address" in chunk.columns:
+
+            chunk["business_address_norm"] = (
+                chunk["business_address"]
+                .apply(normalize_basic)
+            )
+
+            chunk["business_address_norm2"] = (
+                chunk["business_address"]
+                .apply(normalize_address)
+            )
+
+        # ----------------------------------------------------
+        # Write this chunk to the output file
+        # ----------------------------------------------------
+
+        chunk.to_csv(
+            output_path,
+            sep="\t",
+            index=False,
+            mode="w" if first_chunk else "a",
+            header=first_chunk
+        )
+
+        first_chunk = False
+
+    print(
+        f"Finished: {output_path}"
+    )
+
+
+# ============================================================
+# PROCESS ALL TRAINING FILES
+# ============================================================
+
+train_files = [
+    "train_source1.tsv",
+    "train_source2.tsv",
+    "train_source3.tsv"
+]
+
+for filename in train_files:
+
+    input_path = os.path.join(
+        input_folder,
+        "train",
+        filename
+    )
+
+    output_path = os.path.join(
+        output_folder,
+        filename
+    )
+
+    print("\n" + "=" * 70)
+    print("NORMALIZING:", filename)
+    print("=" * 70)
+
+    normalize_full_file(
+        input_path,
+        output_path
+    )
+
+
+# ============================================================
+# PROCESS ALL TEST FILES
+# ============================================================
+
+test_files = [
+    "test_source1.tsv",
+    "test_source2.tsv",
+    "test_source3.tsv"
+]
+
+for filename in test_files:
+
+    input_path = os.path.join(
+        input_folder,
+        "test",
+        filename
+    )
+
+    output_path = os.path.join(
+        output_folder,
+        filename
+    )
+
+    print("\n" + "=" * 70)
+    print("NORMALIZING:", filename)
+    print("=" * 70)
+
+    normalize_full_file(
+        input_path,
+        output_path
+    )
+
+
+print("\n" + "=" * 70)
+print("FULL DATASET NORMALIZATION COMPLETE")
+print("=" * 70)
+
+print(
+    f"\nNormalized files are stored in: "
+    f"{os.path.abspath(output_folder)}"
+)
 
